@@ -1,0 +1,6 @@
+-cp ../src
+-cp .
+#-neko exif.n
+-cpp cpp
+-main Main
+
