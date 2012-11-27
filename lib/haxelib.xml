@@ -1,0 +1,16 @@
+<project name="exif" url="https://github.com/martamius/Exif.hx" license="BSD">
+    <user name="martamius"/>
+    <tag v="exif"/>
+    <tag v="image"/>
+    <tag v="parser"/>
+    <tag v="jpeg"/>
+    <tag v="meta"/>
+    <tag v="cpp"/>
+    <tag v="neko"/>
+    <tag v="metadata"/>
+    <tag v="utility"/>
+    <tag v="cross"/>
+
+    <description>JPEG Exif parser for reading metadata from JPEG images</description>
+    <version name="1.0.0">Initial release</version>
+</project>
