@@ -11,5 +11,5 @@ cp -r lib/* haxelib/exif
 #rm  haxelib/firmament/haxedoc.xml.tmp 
 cd haxelib
 zip -r exif.zip exif
-haxelib test exif.zip
+haxelib install exif.zip
 cd ..

@@ -9,7 +9,7 @@ class Exif{
 
 
 
-	public static function readFile(f:String):Hash<Dynamic>{
+	public static function readFile(f:String):Map<String,Dynamic>{
 
 		var input = File.read(f,true);
 		input.bigEndian = true;
@@ -91,9 +91,9 @@ class Exif{
 		return tags;
 	}
 
-	private static function readEntries(i:FileInput,tiffOffset:Int):Hash<Dynamic>{
+	private static function readEntries(i:FileInput,tiffOffset:Int):Map<String,Dynamic>{
 		var numEntries = i.readUInt16();
-		var tags = new Hash<Dynamic>();
+		var tags = new Map<String,Dynamic>();
 		////trace("num: "+numEntries );
 		for(x in 0...numEntries){
 			////trace("count: "+x+" of "+numEntries);

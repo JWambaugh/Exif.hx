@@ -17,7 +17,7 @@ class Tag {
 		dataType = i.readUInt16();
 
 		//trace("type: "+dataType);
-		var length = Int32.toNativeInt(i.readInt32());
+		var length = i.readInt32();
 		//trace("length: "+length);
 		if(dataType == 1 || dataType == 7){
 			if(length == 1){
@@ -25,7 +25,7 @@ class Tag {
 				i.readByte();
 				i.readUInt16();//need to take up 4 bytes
 			}else{
-				var dataPos = tiffOffset + Int32.toNativeInt(i.readInt32());
+				var dataPos = tiffOffset + i.readInt32();
 				//trace("dataPos:" +dataPos);
 				var pos = i.tell();
 				dataPos = length > 4 ? dataPos : (entryOffset + 8);
@@ -38,7 +38,7 @@ class Tag {
 			}
 		}
 		else if(dataType == 2){
-			var dataPos = tiffOffset + Int32.toNativeInt(i.readInt32());
+			var dataPos = tiffOffset + i.readInt32();
 			//trace("dataPos:" +dataPos);
 			var pos = i.tell();
 			dataPos = length > 4 ? dataPos : (entryOffset + 8);
@@ -53,7 +53,7 @@ class Tag {
 				i.readUInt16();//need to take up 4 bytes
 			}else{
 				//trace("here");
-				var dataPos = tiffOffset + Int32.toNativeInt(i.readInt32());
+				var dataPos = tiffOffset + i.readInt32();
 				//trace("dataPos:" +dataPos);
 				var pos = i.tell();
 				dataPos = length > 2 ? dataPos : (entryOffset + 8);
@@ -67,16 +67,16 @@ class Tag {
 		}
 		else if(dataType == 4 || dataType == 9){
 			if(length == 1){
-				data = Int32.toNativeInt(i.readInt32());
+				data = i.readInt32();
 			}else{
 				//trace("here");
-				var dataPos = tiffOffset + Int32.toNativeInt(i.readInt32());
+				var dataPos = tiffOffset + i.readInt32();
 				//trace("dataPos:" +dataPos);
 				var pos = i.tell();
 				i.seek(dataPos,SeekBegin);
 				data=[];
 				for(x in 0...length){
-					data.push(Int32.toNativeInt(i.readInt32()));
+					data.push(i.readInt32());
 				}
 				i.seek(pos,SeekBegin);
 			}
@@ -84,16 +84,16 @@ class Tag {
 		}
 		else if(dataType == 5||dataType == 10){
 			//trace("here");
-			var dataPos = tiffOffset + Int32.toNativeInt(i.readInt32());
+			var dataPos = tiffOffset + i.readInt32();
 			//trace("dataPos:" +dataPos);
 			var pos = i.tell();
 			i.seek(dataPos,SeekBegin);
 			if(length ==1){
-				data = Int32.toNativeInt(i.readInt32())/Int32.toNativeInt(i.readInt32());
+				data = i.readInt32()/i.readInt32();
 			}else{
 				data=[];
 				for(x in 0...length){
-					data.push(Int32.toNativeInt(i.readInt32())/Int32.toNativeInt(i.readInt32()));
+					data.push(i.readInt32()/i.readInt32());
 				}
 			}
 			i.seek(pos,SeekBegin);
