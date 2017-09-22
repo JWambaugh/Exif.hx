@@ -1,4 +1,6 @@
 package exif;
+import haxe.io.Bytes;
+import haxe.io.BytesInput;
 import haxe.io.Input;
 import haxe.io.Eof;
 import exif.Tag;
@@ -17,14 +19,27 @@ class Exif{
 	}
 	#end
 	
-	public static function readInput(input:AnyInput):Map<String, Dynamic>
+	#if js
+	public static function readArrayBuffer(arrayBuffer:js.html.ArrayBuffer):Map<String, Dynamic>
 	{
-		input.bigEndian = true;
-		if(input.readByte() != 0xFF || input.readByte() != 0xD8){
-			throw "SOI (start of image) not found!";
-		}
-		//trace('here');
-		try{
+		return readBytes(Bytes.ofData(arrayBuffer));
+	}
+	#end
+	
+	public static function readBytes(bytes:Bytes):Map<String, Dynamic>
+	{
+		return readInput(new BytesInput(bytes));
+	}
+	
+	static function readInput(input:AnyInput):Map<String, Dynamic>
+	{
+		try {
+			input.bigEndian = true;
+			if(input.readByte() != 0xFF || input.readByte() != 0xD8){
+				throw "SOI (start of image) not found!";
+			}
+			//trace('here');
+		
 			while(true){
 				//first byte should be ff
 				input.readByte();
@@ -47,9 +62,9 @@ class Exif{
 				}
 
 			}
-		}catch(e:Eof){
-			return null;
+		} catch (any:Dynamic) {
 		}
+		
 		return null;
 	}
 
