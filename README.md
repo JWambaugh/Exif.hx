@@ -3,6 +3,24 @@ Exif.hx
 
 Exif meta tag parser for haxe.
 
+Usage
+=======
+
+Library supports reading Exif from ```sys.io.FileInput``` and ```haxe.io.BytesInput```
+
+```haxe
+// if you are targeting js, first obtain an js.html.ArrayBuffer with JPEG binary data
+var exif = Exif.readArrayBuffer(jpegArrayBuffer);
+// if you are targeting sys target (neko / cpp / cppia) or in macro and reading from a file
+var exif = Exif.readFile("image.jpg"); 
+// if you are targeting cross just read directly from haxe.io.Bytes
+var exif = Exif.readBytes(jpegBytes);
+// to get exif data
+if (exif != null) { //if exif data can not be extracted null will be returned
+    var orientation:Null<Int> = exif.get("Orientation");
+    //do smth :)
+}
+```
 
 License
 =======

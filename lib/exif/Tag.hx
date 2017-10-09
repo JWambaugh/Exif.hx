@@ -1,14 +1,12 @@
 
 package exif;
-import sys.io.FileInput;
-import haxe.Int32;
-import exif.Exif;
+
 class Tag {
 	public var tagCode:Int;
 	public var dataType:Int;
 	public var data:Dynamic;
 	
-	public function new(i:FileInput,tiffOffset:Int){
+	public function new(i:AnyInput,tiffOffset:Int){
 		data = null;
 		//trace("____________\n Position: "+i.tell());
 		var entryOffset = i.tell();
@@ -29,12 +27,12 @@ class Tag {
 				//trace("dataPos:" +dataPos);
 				var pos = i.tell();
 				dataPos = length > 4 ? dataPos : (entryOffset + 8);
-				i.seek(dataPos,SeekBegin);
+				i.seekBegin(dataPos);
 				data = [];
 				for(x in 0...length){
 					data.push(i.readByte());
 				}
-				i.seek(pos,SeekBegin);
+				i.seekBegin(pos);
 			}
 		}
 		else if(dataType == 2){
@@ -42,9 +40,9 @@ class Tag {
 			//trace("dataPos:" +dataPos);
 			var pos = i.tell();
 			dataPos = length > 4 ? dataPos : (entryOffset + 8);
-			i.seek(dataPos,SeekBegin);
+			i.seekBegin(dataPos);
 			data = i.readString(length-1);
-			i.seek(pos,SeekBegin);
+			i.seekBegin(pos);
 		}
 
 		else if(dataType == 3){
@@ -57,12 +55,12 @@ class Tag {
 				//trace("dataPos:" +dataPos);
 				var pos = i.tell();
 				dataPos = length > 2 ? dataPos : (entryOffset + 8);
-				i.seek(dataPos,SeekBegin);
+				i.seekBegin(dataPos);
 				data=[];
 				for(x in 0...length){
 					data.push(i.readUInt16());
 				}
-				i.seek(pos,SeekBegin);
+				i.seekBegin(pos);
 			}
 		}
 		else if(dataType == 4 || dataType == 9){
@@ -73,12 +71,12 @@ class Tag {
 				var dataPos = tiffOffset + i.readInt32();
 				//trace("dataPos:" +dataPos);
 				var pos = i.tell();
-				i.seek(dataPos,SeekBegin);
+				i.seekBegin(dataPos);
 				data=[];
 				for(x in 0...length){
 					data.push(i.readInt32());
 				}
-				i.seek(pos,SeekBegin);
+				i.seekBegin(pos);
 			}
 			
 		}
@@ -87,7 +85,7 @@ class Tag {
 			var dataPos = tiffOffset + i.readInt32();
 			//trace("dataPos:" +dataPos);
 			var pos = i.tell();
-			i.seek(dataPos,SeekBegin);
+			i.seekBegin(dataPos);
 			if(length ==1){
 				data = i.readInt32()/i.readInt32();
 			}else{
@@ -96,7 +94,7 @@ class Tag {
 					data.push(i.readInt32()/i.readInt32());
 				}
 			}
-			i.seek(pos,SeekBegin);
+			i.seekBegin(pos);
 		
 			
 		}else{

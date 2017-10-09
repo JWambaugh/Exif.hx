@@ -1,23 +1,45 @@
 package exif;
-import sys.io.File;
-import sys.io.FileInput;
+import haxe.io.Bytes;
+import haxe.io.BytesInput;
+import haxe.io.Input;
 import haxe.io.Eof;
 import exif.Tag;
 
 class Exif{
 	
 
-
-
+	
+	#if sys
 	public static function readFile(f:String):Map<String,Dynamic>{
 
-		var input = File.read(f,true);
-		input.bigEndian = true;
-		if(input.readByte() != 0xFF || input.readByte() != 0xD8){
-			throw("SOI (start of image) not found!");
-		}
-		//trace('here');
-		try{
+		var input = sys.io.File.read(f,true);
+		var exif = readInput(input);
+		input.close();
+		return exif;
+	}
+	#end
+	
+	#if js
+	public static function readArrayBuffer(arrayBuffer:js.html.ArrayBuffer):Map<String, Dynamic>
+	{
+		return readBytes(Bytes.ofData(arrayBuffer));
+	}
+	#end
+	
+	public static function readBytes(bytes:Bytes):Map<String, Dynamic>
+	{
+		return readInput(new BytesInput(bytes));
+	}
+	
+	static function readInput(input:AnyInput):Map<String, Dynamic>
+	{
+		try {
+			input.bigEndian = true;
+			if(input.readByte() != 0xFF || input.readByte() != 0xD8){
+				throw "SOI (start of image) not found!";
+			}
+			//trace('here');
+		
 			while(true){
 				//first byte should be ff
 				input.readByte();
@@ -40,47 +62,46 @@ class Exif{
 				}
 
 			}
-		}catch(e:Eof){
-			return null;
+		} catch (any:Dynamic) {
 		}
+		
 		return null;
 	}
 
 
-	private static function readExif(i:FileInput){
+	private static function readExif(i:AnyInput){
 		var length = i.readUInt16();
 		var exifMarker = i.readString(4);
 		if(exifMarker!="Exif"){
 			throw ("Exif marker not found!");
 		}
-		i.readInt16();//should be 0000
+		i.readInt16(); //should be 0000
+		
 		var tiffHeader = i.readUInt16();
-		if(tiffHeader == 0x4949){
-			//trace("little endian");
-			i.bigEndian = false;
-		}
-		if(tiffHeader == 0x4D4D){
-			//trace("big endian");
-			i.bigEndian = true;
-		}
-		else{
-			throw('TIFF header not recognizable!');
-		}
-		var tiffOffset = i.tell()-2;
+		var tiffOffset = i.tell() - 2;
 
-		if(i.readInt16() != 0x002A){
-			throw "Read error";
+		switch (tiffHeader)
+		{
+			case 0x4949: i.bigEndian = false;
+			case 0x4d4d: i.bigEndian = true;
+			case _: throw 'Invalid TIFF header: $tiffHeader';
 		}
-		if(i.readInt16() != 0x0000){
-			throw "Read error";
+		
+		var b:Int;
+		if((b = i.readInt16()) != 0x002A){
+			throw 'Invalid bytes: got $b, expected ${0x002A}';
 		}
-		if(i.readInt16() != 0x0008){
-			throw "Read error";
+		if((b = i.readInt32()) != 0x00000008){
+			throw 'Invalid bytes: got $b, expected ${0x00000008}';
 		}
+		
+		
+		
+		
 		var tags = readEntries(i,tiffOffset);
 
 		if(tags.exists("ExifIFDPointer")){
-			i.seek(tags.get("ExifIFDPointer")+tiffOffset,SeekBegin);
+			i.seekBegin(tags.get("ExifIFDPointer")+tiffOffset);
 			//trace("exif offset: "+i.tell());
 			var xifTags = readEntries(i,tiffOffset);
 			//merge exif tags into regular tags
@@ -91,7 +112,7 @@ class Exif{
 		return tags;
 	}
 
-	private static function readEntries(i:FileInput,tiffOffset:Int):Map<String,Dynamic>{
+	private static function readEntries(i:AnyInput,tiffOffset:Int):Map<String,Dynamic>{
 		var numEntries = i.readUInt16();
 		var tags = new Map<String,Dynamic>();
 		////trace("num: "+numEntries );
